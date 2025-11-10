@@ -22,9 +22,11 @@ def raw_content(href, retries=3):
             print(f"Attempt {attempt + 1} failed: {e}")
             if attempt < retries - 1:
                 sleep(uniform(5, 10))
+                return None
             else:
                 print("All retry attempts failed.")
                 return None, None
+    return None
 
 
 def extract_links(content, referral):
@@ -58,13 +60,13 @@ repository = ArticleRepository()
 stored_links = repository.stored_links()
 search_links = deque(repository.explorable_links())
 
-MAX_CAP = 1000
+MAX_CAP = 2000
 
 total = len(stored_links)+1
 current = 1
 
 start, end, mean = None, None, 7.5
-while search_links or total <= MAX_CAP:
+while search_links and total <= MAX_CAP:
     link = search_links.popleft()
     if link in stored_links:
         print(f'Link {link.link} is already in the db, skipping...')

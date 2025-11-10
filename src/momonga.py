@@ -9,12 +9,13 @@ class ArticleRepository:
         db = client['articles']
         self.stored_articles_collection = db['stored_articles']
         self.explorable_links_collection = db['explorable_links']
+        self.curated_articles_collection = db['curated_articles']
 
     def stored_links(self):
         return set(ReferredLink(article['link'], article['referrals']) for article in self.stored_articles_collection.find({}, {'link': 1, 'referrals': 1, '_id': 0}))
 
     def stored_articles(self):
-        return list(self.stored_articles_collection.find({}, {"link": 1, "content": 1, "referrals": 1, "_id": 0}))
+        return self.stored_articles_collection.find({}, {"link": 1, "content": 1, "referrals": 1, "_id": 0})
 
     def store_article(self, link, content, referral):
         article = {
@@ -23,6 +24,24 @@ class ArticleRepository:
             'referrals': referral
         }
         return self.stored_articles_collection.insert_one(article)
+
+    def stored_curated_links(self):
+        return set(article['link'] for article in self.curated_articles_collection.find({}, {'link': 1, '_id': 0}))
+
+    def curated_articles(self, links = None):
+        if links is None:
+            return self.curated_articles_collection.find({}, {"link": 1, "curated_content": 1, "_id": 0})
+        else:
+            return self.curated_articles_collection.find({"link": {"$in": links}}, {"link": 1, "curated_content": 1, "_id": 0})
+    def store_curated(self, link, curated_content):
+        article = {
+            'link': link,
+            'curated_content' : curated_content
+        }
+        return self.curated_articles_collection.insert_one(article)
+
+    def store_curated_serial(self, curated_links):
+        return self.curated_articles_collection.insert_many(curated_links)
 
     def add_explorable_links(self, referred_links: set[ReferredLink]):
         parsed_links = [{'link': link.link, 'referrals': [link.referral]} for link in referred_links]
