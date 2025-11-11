@@ -4,6 +4,9 @@ import requests
 import re
 from collections import deque
 from random import uniform
+
+from pymongo import MongoClient
+
 from momonga import ArticleRepository
 from ReferredLink import ReferredLink
 
@@ -55,7 +58,7 @@ def extract_links(content, referral):
     return links
 
 
-repository = ArticleRepository()
+repository = ArticleRepository(client = MongoClient("mongodb://localhost:27017/"))
 
 stored_links = repository.stored_links()
 search_links = deque(repository.explorable_links())

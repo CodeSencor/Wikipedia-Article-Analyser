@@ -4,6 +4,9 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet, stopwords
 from nltk.tokenize import word_tokenize
 from re import match
+
+from pymongo import MongoClient
+
 from momonga import ArticleRepository
 
 nltk.download('punkt')
@@ -38,7 +41,7 @@ def curate_content(content, lemmatizer: WordNetLemmatizer):
 
     return lemmatized
 
-repository = ArticleRepository()
+repository = ArticleRepository(client = MongoClient("mongodb://localhost:27017/"))
 lemmatizer = WordNetLemmatizer()
 
 curated_links = repository.stored_curated_links()

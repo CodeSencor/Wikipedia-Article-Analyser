@@ -1,7 +1,7 @@
 class ReferredLink:
-    def __init__(self, link, referral):
+    def __init__(self, link, referrals):
         self.link = link
-        self.referral = referral
+        self.referrals = referrals
 
     def __hash__(self):
         return hash(self.link)
@@ -12,4 +12,4 @@ class ReferredLink:
         return False
 
     def __repr__(self):
-        return f"ReferredLink({self.link!r}, {self.referral!r})"
+        return f"ReferredLink({self.link!r}, {self.referrals!r})"

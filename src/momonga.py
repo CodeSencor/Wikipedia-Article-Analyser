@@ -1,11 +1,8 @@
 from pymongo import MongoClient
-
 from ReferredLink import ReferredLink
 
-
 class ArticleRepository:
-    def __init__(self):
-        client = MongoClient("mongodb://localhost:27017/")
+    def __init__(self, client):
         db = client['articles']
         self.stored_articles_collection = db['stored_articles']
         self.explorable_links_collection = db['explorable_links']
@@ -44,7 +41,7 @@ class ArticleRepository:
         return self.curated_articles_collection.insert_many(curated_links)
 
     def add_explorable_links(self, referred_links: set[ReferredLink]):
-        parsed_links = [{'link': link.link, 'referrals': [link.referral]} for link in referred_links]
+        parsed_links = [{'link': link.link, 'referrals': [link.referrals]} for link in referred_links]
         return self.explorable_links_collection.insert_many(parsed_links)
 
     def explorable_links(self):
@@ -75,3 +72,11 @@ class ArticleRepository:
             {"$addToSet": {"referrals": referral}}
             )
         return None
+
+    def debug(self):
+        # Debug what's actually in MongoDB
+        for article in self.stored_articles_collection.find({}, {'link': 1, 'referrals': 1, '_id': 0}).limit(5):
+            print(f"Link: {article['link']}")
+            print(f"Referrals: {article['referrals']}")
+            print(f"First element: {article['referrals'][0] if article['referrals'] else 'empty'}")
+            print("---")
